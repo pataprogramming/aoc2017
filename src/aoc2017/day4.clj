@@ -27,7 +27,8 @@
        count))
 
 (comment
-  (check-passphrases unique-words? day4-input))
+  (check-passphrases unique-words? day4-input)
+  )
 
 ;; Part 2
 
@@ -45,4 +46,5 @@
     (= (count words) (count normalized))))
 
 (comment
-  (check-passphrases no-anagrams? day4-input))
+  (check-passphrases no-anagrams? day4-input)
+  )

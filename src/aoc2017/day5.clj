@@ -39,8 +39,10 @@
   (with-open [r (io/reader filename)]
     (->> r line-seq (map edn/read-string) vec)))
 
+(def day5 (read-program "resources/day5.txt"))
+
 (comment
-  (run-program (read-program "resources/day5.txt"))
+  (run-program day5)
   )
 
 ;;; Part 2 ;;;
@@ -58,23 +60,26 @@
   ;; Slow! Switching to a transient drops runtime from 8.9s to 4.3s
   (run-program [0 3 0 1 -3] stranger-adjustment)
   (run-program [0 3 0 1 -3] inc)
-  (run-program (read-program "resources/day5.txt") stranger-adjustment)
+  (time (run-program day5 stranger-adjustment))
   )
 
 (defn run-program-fast
+  ;; Not yet working as expected; to poke at later. (4x slower!)
   ([program]
    (run-program-fast program inc))
   ([program adjust-fn]
-   (letfn [(out-of-bounds? [i] (or (< i 0) (>= i (count program))))]
-     (loop [memory         (int-array program)
-            ip             0
-            steps          0]
-       (if (out-of-bounds? ip)
-         steps
-         (let [offset  (get memory ip)
-               next-ip (+ ip offset)]
-           (recur (aset-int memory ip (int (adjust-fn offset))) next-ip (inc steps))))))))
+   (let [memory (int-array program)]
+     (letfn [(out-of-bounds? [i] (or (< i 0) (>= i (count program))))]
+       (loop [ip             0
+              steps          0]
+         (if (out-of-bounds? ip)
+           steps
+           (let [offset  (get memory ip)
+                 next-ip (+ ip offset)]
+             (aset-int memory ip (int (adjust-fn offset)))
+             (recur next-ip (inc steps)))))))))
 
 (comment
-  (run-program (read-program "resources/day5.txt") stranger-adjustment)
+
+  (time (run-program-fast (read-program "resources/day5.txt") stranger-adjustment))
   )
